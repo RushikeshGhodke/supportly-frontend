@@ -8,6 +8,7 @@ import ChoosePlan from "./pages/ChoosePlan.jsx";
 import VerifyOTP from "./pages/VerifyOTP.jsx";
 import InviteTeam from "./pages/InviteTeam.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Reports from "./pages/Reports.jsx";
 
 const App = () => {
     return (
@@ -24,6 +25,7 @@ const App = () => {
                     <Route path="/setup-company" element={<SetupCompany />}/>
                     <Route path="/invite-team" element={<InviteTeam />}/>
                     <Route path="/dashboard" element={<Dashboard />}/>
+                    <Route path="/reports" element={<Reports />}/>
 
                 </Route>
             </Routes>
