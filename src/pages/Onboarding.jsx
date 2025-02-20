@@ -27,6 +27,7 @@ const Onboarding = () => {
         // dispatch(setBusinessDetails(formData));
         // const result = await dispatch(saveOnboardingDetails(formData));
         // if (result.payload) navigate("/verify-otp");
+        console.log(formData)
         navigate("/verify-otp");
     };
 

@@ -9,6 +9,12 @@ import VerifyOTP from "./pages/VerifyOTP.jsx";
 import InviteTeam from "./pages/InviteTeam.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Reports from "./pages/Reports.jsx";
+import ComplaintsDashboard from "./pages/ComplaintsDashboard.jsx";
+import ComplaintDetails from "./pages/ComplaintDetails.jsx";
+import PendingComplaints from "./pages/PendingComplaints.jsx";
+import ResolvedComplaints from "./pages/ResolvedComplaints.jsx";
+import HighPriorityComplaints from "./pages/HighPriorityComplaints.jsx";
+import EscalatedComplaints from "./pages/EscalatedComplaints.jsx";
 
 const App = () => {
     return (
@@ -26,7 +32,12 @@ const App = () => {
                     <Route path="/invite-team" element={<InviteTeam />}/>
                     <Route path="/dashboard" element={<Dashboard />}/>
                     <Route path="/reports" element={<Reports />}/>
-
+                    <Route path="/complaintsDashboard" element={<ComplaintsDashboard />}/>
+                    <Route path="/complaints/:id" element={<ComplaintDetails />}/>
+                    <Route path="/pendingComplaints" element={<PendingComplaints />}/>
+                    <Route path="/resolvedComplaints" element={<ResolvedComplaints />}/>
+                    <Route path="/highPriorityComplaints" element={<HighPriorityComplaints />}/>
+                    <Route path="/escalatedComplaints" element={<EscalatedComplaints />}/>
                 </Route>
             </Routes>
         </Router>

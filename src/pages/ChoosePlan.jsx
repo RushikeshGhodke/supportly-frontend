@@ -15,6 +15,7 @@ const ChoosePlan = () => {
     const navigate = useNavigate();
 
     const handlePlanSelect = (plan) => {
+        console.log(plan);
         dispatch(selectPlan(plan));
         navigate("/onboarding");
     };

@@ -1,10 +1,10 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Async function to fetch complaints
 export const fetchComplaints = createAsyncThunk(
     "complaints/fetchComplaints",
-    async (_, { rejectWithValue }) => {
+    async (_, {rejectWithValue}) => {
         try {
             const response = await axios.get("/api/complaints");
             return response.data;
@@ -42,31 +42,48 @@ const complaintsSlice = createSlice({
         list: [
             {
                 id: "CMP001",
-                customerName: "John Doe",
-                issue: "Late delivery of product",
-                priority: "High",
+                customerName: "Robert Johnson",
+                type: "Delivery Issues",
+                issue: "Late delivery",
+                priorityScore: 4,
                 status: "Pending",
+                timestamp: "2025-02-20 10:30:00"
             },
             {
                 id: "CMP002",
-                customerName: "Alice Smith",
-                issue: "Received damaged item",
-                priority: "Medium",
+                customerName: "Robert Johnson",
+                type: "Payment Issues",
+                issue: "Refund not received",
+                priorityScore: 3,
                 status: "Resolved",
+                timestamp: "2025-02-19 14:15:00"
             },
             {
                 id: "CMP003",
                 customerName: "Robert Johnson",
-                issue: "Refund not processed",
-                priority: "High",
+                type: "Product Issues",
+                issue: "Received damaged item",
+                priorityScore: 5,
                 status: "Pending",
+                timestamp: "2025-02-18 09:45:00"
             },
             {
                 id: "CMP004",
-                customerName: "Sophia Brown",
-                issue: "Incorrect order received",
-                priority: "Low",
-                status: "Resolved",
+                customerName: "Robert Johnson",
+                type: "Customer Support",
+                issue: "No response from support",
+                priorityScore: 1,
+                status: "Pending",
+                timestamp: "2025-02-17 18:00:00"
+            },
+            {
+                id: "CMP005",
+                customerName: "Rushikesh Ghodke",
+                type: "Delivery Issues",
+                issue: "Pickup for Return Delayed",
+                priorityScore: 3,
+                status: "Escalated",
+                timestamp: "2025-02-20 12:00:00"
             },
 
         ],

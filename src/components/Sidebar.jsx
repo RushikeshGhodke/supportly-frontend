@@ -92,22 +92,22 @@ const Sidebar = () => {
             children: [
                 {
                     name: 'Overview',
-                    slug: '/employees',
+                    slug: '/dashboard',
                     icon: 'GrOverview',
                     access: HRManagementAccess[1],
                 },
                 {
                     name: 'Analytics & Insights',
-                    slug: '/departments',
+                    slug: '/reports',
                     icon: 'SiSimpleanalytics',
                     access: HRManagementAccess[2],
                 },
-                {
-                    name: 'Complaint Trends',
-                    slug: '/designations',
-                    icon: 'FaArrowTrendUp',
-                    access: HRManagementAccess[3],
-                },
+                // {
+                //     name: 'Complaint Trends',
+                //     slug: '/designations',
+                //     icon: 'FaArrowTrendUp',
+                //     access: HRManagementAccess[3],
+                // },
             ],
         },
         {
@@ -117,31 +117,37 @@ const Sidebar = () => {
             children: [
                 {
                     name: 'All Complaints',
-                    slug: '/manageEmployees',
+                    slug: '/complaintsDashboard',
                     icon: 'BsListTask',
                     access: ProjectManagementAccess[0],
                 },
-                {
-                    name: 'Search & Filters',
-                    slug: '/allProjects',
-                    icon: 'BsListTask',
-                    access: ProjectManagementAccess[0],
-                },
+                // {
+                //     name: 'Search & Filters',
+                //     slug: '/allProjects',
+                //     icon: 'BsListTask',
+                //     access: ProjectManagementAccess[0],
+                // },
                 {
                     name: 'Pending Complaints',
-                    slug: '/allProjects',
+                    slug: '/pendingComplaints',
                     icon: 'BsListTask',
                     access: ProjectManagementAccess[0],
                 },
                 {
                     name: 'Resolved Complaints',
-                    slug: '/allProjects',
+                    slug: '/resolvedComplaints',
                     icon: 'BsListTask',
                     access: ProjectManagementAccess[0],
                 },
                 {
                     name: 'High-Priority Complaints',
-                    slug: '/allProjects',
+                    slug: '/highPriorityComplaints',
+                    icon: 'BsListTask',
+                    access: ProjectManagementAccess[0],
+                },
+                {
+                    name: 'Escalated Complaints',
+                    slug: '/escalatedComplaints',
                     icon: 'BsListTask',
                     access: ProjectManagementAccess[0],
                 },

@@ -3,11 +3,11 @@ import { useSelector } from "react-redux";
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
 
-// Register necessary components for Chart.js
+// Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const Reports = () => {
-    const { stats } = useSelector((state) => state.complaints);
+    const { stats, list } = useSelector((state) => state.complaints);
     const [activeTab, setActiveTab] = useState("priority"); // Default tab: Priority Distribution
 
     // Bar Chart Data (Priority-wise Complaints)
@@ -36,6 +36,27 @@ const Reports = () => {
         ],
     };
 
+    // Complaint Trends Data (Top 3 Most Reported Complaint Types)
+    const complaintTypeCounts = list.reduce((acc, complaint) => {
+        acc[complaint.type] = (acc[complaint.type] || 0) + 1;
+        return acc;
+    }, {});
+
+    const sortedComplaintTypes = Object.entries(complaintTypeCounts)
+        .sort((a, b) => b[1] - a[1]) // Sort by highest count
+        .slice(0, 3); // Get top 3
+
+    const trendsData = {
+        labels: sortedComplaintTypes.map(([type]) => type),
+        datasets: [
+            {
+                label: "Top Complaint Types",
+                data: sortedComplaintTypes.map(([, count]) => count),
+                backgroundColor: ["#F87171", "#FB923C", "#60A5FA"],
+            },
+        ],
+    };
+
     return (
         <section className="w-full mt-16 flex justify-center items-start bg-gray-100">
             <div className="bg-white rounded-xl shadow-lg w-full p-10">
@@ -59,6 +80,14 @@ const Reports = () => {
                     >
                         Status Distribution
                     </button>
+                    <button
+                        className={`py-2 px-4 text-lg font-semibold ${
+                            activeTab === "trends" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
+                        }`}
+                        onClick={() => setActiveTab("trends")}
+                    >
+                        Complaint Trends
+                    </button>
                 </div>
 
                 {/* Tab Content - Merged Complaint Overview & Charts */}
@@ -73,13 +102,26 @@ const Reports = () => {
                                 <p className="text-lg"><strong>Medium Priority:</strong> {stats.mediumPriority || 0}</p>
                                 <p className="text-lg"><strong>Low Priority:</strong> {stats.lowPriority || 0}</p>
                             </>
-                        ) : (
+                        ) : activeTab === "status" ? (
                             <>
                                 <h2 className="text-xl font-semibold mb-4">Status Overview</h2>
                                 <p className="text-lg"><strong>Total Complaints:</strong> {stats.total || 0}</p>
                                 <p className="text-lg"><strong>Resolved:</strong> {stats.resolved || 0}</p>
                                 <p className="text-lg"><strong>Pending:</strong> {stats.pending || 0}</p>
                                 <p className="text-lg"><strong>In Progress:</strong> {stats.inProgress || 0}</p>
+                            </>
+                        ) : (
+                            <>
+                                <h2 className="text-xl font-semibold mb-4">Complaint Trends</h2>
+                                {sortedComplaintTypes.length === 0 ? (
+                                    <p className="text-lg">No complaints recorded yet.</p>
+                                ) : (
+                                    sortedComplaintTypes.map(([type, count], index) => (
+                                        <p key={index} className="text-lg">
+                                            <strong>{type}:</strong> {count} complaints
+                                        </p>
+                                    ))
+                                )}
                             </>
                         )}
                     </div>
@@ -88,9 +130,13 @@ const Reports = () => {
                     <div className="w-1/2 flex justify-center">
                         {activeTab === "priority" ? (
                             <Bar data={barData} />
-                        ) : (
-                            <div className="w-82 h-82">
+                        ) : activeTab === "status" ? (
+                            <div className="w-72 h-72">
                                 <Pie data={pieData} />
+                            </div>
+                        ) : (
+                            <div className="w-80 h-60">
+                                <Bar data={trendsData} />
                             </div>
                         )}
                     </div>

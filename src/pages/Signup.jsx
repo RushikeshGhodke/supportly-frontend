@@ -22,6 +22,7 @@ const Signup = () => {
         e.preventDefault();
         // const result = await dispatch(registerUser(formData));
         // if (result.payload) navigate("/choose-plan");
+        console.log(formData);
         navigate("/choose-plan");
     };
 

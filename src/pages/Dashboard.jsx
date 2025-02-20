@@ -8,10 +8,17 @@ const Dashboard = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const complaintsPerPage = 5;
 
+    // Function to Convert Priority Score to Category
+    const getPriorityCategory = (score) => {
+        if (score >= 1 && score <= 2) return "Low";
+        if (score >= 3 && score <= 4) return "Medium";
+        return "High";
+    };
+
+    // Pagination
     const indexOfLastComplaint = currentPage * complaintsPerPage;
     const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
     const currentComplaints = list.slice(indexOfFirstComplaint, indexOfLastComplaint);
-
     const totalPages = Math.ceil(list.length / complaintsPerPage);
 
     const nextPage = () => {
@@ -29,9 +36,9 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center mb-7">
                     <h1 className="text-[#0061A1] text-2xl font-semibold">Dashboard</h1>
                     <div className="flex gap-4">
-                        <Link to="/complaints/new" className="bg-[#0061A1] text-white py-2 px-4 rounded-md">
-                            + New Complaint
-                        </Link>
+                        {/*<Link to="/complaints/new" className="bg-[#0061A1] text-white py-2 px-4 rounded-md">*/}
+                        {/*    + New Complaint*/}
+                        {/*</Link>*/}
                         <Link to="/reports" className="bg-gray-800 text-white py-2 px-4 rounded-md">
                             View Reports
                         </Link>
@@ -72,6 +79,7 @@ const Dashboard = () => {
                                 <thead>
                                 <tr className="bg-gray-100">
                                     <th className="border p-2">Customer</th>
+                                    <th className="border p-2">Type</th>
                                     <th className="border p-2">Issue</th>
                                     <th className="border p-2">Priority</th>
                                     <th className="border p-2">Status</th>
@@ -79,43 +87,49 @@ const Dashboard = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {currentComplaints.map((complaint, index) => (
-                                    <tr key={index} className="text-center">
-                                        <td className="border p-2">{complaint.customerName}</td>
-                                        <td className="border p-2">{complaint.issue}</td>
-                                        <td className="border p-2">
-                        <span
-                            className={`px-2 py-1 rounded-md ${
-                                complaint.priority === "High"
-                                    ? "bg-[#FF7B79] text-[#A22F2E]"
-                                    : complaint.priority === "Medium"
-                                        ? "bg-[#FFE978] text-[#9B8D0A]"
-                                        : "bg-[#AEFFC0] text-[#12A70F]"
-                            }`}
-                        >
-                          {complaint.priority}
-                        </span>
-                                        </td>
-                                        <td className="border p-2">
-                        <span
-                            className={`px-2 py-1 rounded-md ${
-                                complaint.status === "Resolved"
-                                    ? "bg-[#AEFFC0] text-[#12A70F]"
-                                    : complaint.status === "Pending"
-                                        ? "bg-[#FF7B79] text-[#A22F2E]"
-                                        : "bg-gray-500"
-                            }`}
-                        >
-                          {complaint.status}
-                        </span>
-                                        </td>
-                                        <td className="border p-2">
-                                            <Link to={`/complaints/${complaint.id}`} className="text-blue-500 underline">
-                                                View
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {currentComplaints.map((complaint, index) => {
+                                    const priorityCategory = getPriorityCategory(complaint.priorityScore);
+
+                                    return (
+                                        <tr key={index} className="text-center">
+                                            <td className="border p-2">{complaint.customerName}</td>
+                                            <td className="border p-2">{complaint.type}</td>
+                                            <td className="border p-2">{complaint.issue}</td>
+                                            <td className="border p-2">
+                                                    <span
+                                                        className={`px-2 py-1 rounded-md ${
+                                                            priorityCategory === "High"
+                                                                ? "bg-[#FF7B79] text-[#A22F2E]"
+                                                                : priorityCategory === "Medium"
+                                                                    ? "bg-[#FFE978] text-[#9B8D0A]"
+                                                                    : "bg-[#AEFFC0] text-[#12A70F]"
+                                                        }`}
+                                                    >
+                                                        {priorityCategory}
+                                                    </span>
+                                            </td>
+                                            <td className="border p-2">
+                                                    <span
+                                                        className={`px-2 py-1 rounded-md ${
+                                                            complaint.status === "Resolved"
+                                                                ? "bg-[#AEFFC0] text-[#12A70F]"
+                                                                : "bg-[#FF7B79] text-[#A22F2E]"
+                                                        }`}
+                                                    >
+                                                        {complaint.status}
+                                                    </span>
+                                            </td>
+                                            <td className="border p-2">
+                                                <Link
+                                                    to={`/complaints/${complaint.id}`}
+                                                    className="text-blue-500 underline"
+                                                >
+                                                    View
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                                 </tbody>
                             </table>
 
@@ -131,8 +145,8 @@ const Dashboard = () => {
                                     Previous
                                 </button>
                                 <span className="text-lg font-semibold">
-                  Page {currentPage} of {totalPages}
-                </span>
+                                    Page {currentPage} of {totalPages}
+                                </span>
                                 <button
                                     onClick={nextPage}
                                     disabled={currentPage === totalPages}
