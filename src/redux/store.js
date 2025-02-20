@@ -4,6 +4,7 @@ import planReducer from "./slices/planSlice";
 import onboardingReducer from "./slices/onboardingSlice";
 import otpReducer from "./slices/otpSlice";
 import teamReducer from "./slices/teamSlice";
+import complaintsReducer from "./slices/complaintsSlice";
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
         onboarding: onboardingReducer,
         otp: otpReducer,
         team: teamReducer,
+        complaints: complaintsReducer,
     },
 });
 

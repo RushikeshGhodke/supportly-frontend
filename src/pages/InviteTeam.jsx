@@ -19,19 +19,20 @@ const InviteTeam = () => {
             return;
         }
 
-        const result = await dispatch(inviteTeamMembers({ teamMembers }));
-        if (result.payload) navigate("/dashboard");
+        // const result = await dispatch(inviteTeamMembers({ teamMembers }));
+        // if (result.payload) navigate("/dashboard");
+        navigate("/dashboard")
     };
 
     return (
         <section className="w-full mt-16 flex justify-center items-start bg-gray-100">
-            <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl p-10">
-                <h1 className="text-[#0061A1] text-2xl font-semibold mb-8 text-center">Invite Your Team</h1>
+            <div className="bg-white rounded-xl shadow-lg w-full p-10">
+                <h1 className="text-[#0061A1] text-2xl font-semibold mb-7">Invite Your Team</h1>
 
                 {/* Organization Code Section */}
                 <div className="bg-gray-200 p-4 rounded-md text-center">
                     <p className="text-lg font-semibold">Share This Organization Code</p>
-                    <div className="flex justify-center items-center gap-3 mt-2">
+                    <div className="flex justify-center items-center gap-3 mt-1">
                         <span className="bg-white text-gray-800 px-4 py-1 rounded-md text-lg font-bold">{orgCode}</span>
                         <button className="bg-blue-600 text-white px-4 py-1 rounded-md" onClick={handleCopyCode}>
                             Copy
@@ -46,18 +47,27 @@ const InviteTeam = () => {
                         <h3 className="text-lg font-semibold mb-2">Add Team Members</h3>
                         <div className="space-y-4">
                             {teamMembers.map((member, index) => (
-                                <div key={index} className="flex gap-3 items-center bg-gray-100 p-3 rounded-md shadow-sm">
+                                <div key={index}
+                                     className="flex gap-3 items-center bg-gray-100 p-3 rounded-md shadow-sm">
                                     <input
                                         type="email"
                                         placeholder="Enter email"
                                         value={member.email}
-                                        onChange={(e) => dispatch(updateMember({ index, key: "email", value: e.target.value }))}
+                                        onChange={(e) => dispatch(updateMember({
+                                            index,
+                                            key: "email",
+                                            value: e.target.value
+                                        }))}
                                         className="w-2/3 p-2 border-2 border-[#DAD7D7] rounded-md"
                                         required
                                     />
                                     <select
                                         value={member.role}
-                                        onChange={(e) => dispatch(updateMember({ index, key: "role", value: e.target.value }))}
+                                        onChange={(e) => dispatch(updateMember({
+                                            index,
+                                            key: "role",
+                                            value: e.target.value
+                                        }))}
                                         className="w-1/3 p-2 border-2 border-[#DAD7D7] rounded-md"
                                     >
                                         <option>Support Agent</option>
