@@ -13,8 +13,8 @@ const VerifyOTP = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // const result = await dispatch(verifyOTP({ email: user.email, otp }));
-        // if (result.payload) navigate("/setup-company");
+        const result = await dispatch(verifyOTP({ email: user.email, otp }));
+        if (result.payload) navigate("/setup-company");
         navigate("/setup-company");
     };
 

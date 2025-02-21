@@ -6,7 +6,7 @@ export const verifyOTP = createAsyncThunk(
     "otp/verifyOTP",
     async ({ email, otp }, { rejectWithValue }) => {
         try {
-            const response = await axios.post("/api/verify-otp", { email, otp });
+            const response = await axios.post("http://localhost:3000/api/v1/organization/otpverification", { email, otp });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);

@@ -6,7 +6,10 @@ export const saveOnboardingDetails = createAsyncThunk(
     "onboarding/saveDetails",
     async (businessData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("/api/onboarding", businessData);
+            console.log(businessData)
+
+            const response = await axios.post("http://localhost:3000/api/v1/organization/register", businessData);
+            console.log(response.data);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);

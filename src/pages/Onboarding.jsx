@@ -12,8 +12,8 @@ const Onboarding = () => {
     const { loading, error } = useSelector((state) => state.onboarding);
 
     const [formData, setFormData] = useState({
-        businessName: "",
-        industry: industries[0],
+        businessname: "",
+        industrytype: industries[0],
         email: user?.email || "", // Prefill from signup
         password: user?.password || "", // Prefill from signup
     });
@@ -24,11 +24,11 @@ const Onboarding = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // dispatch(setBusinessDetails(formData));
-        // const result = await dispatch(saveOnboardingDetails(formData));
-        // if (result.payload) navigate("/verify-otp");
+        dispatch(setBusinessDetails(formData));
+        const result = await dispatch(saveOnboardingDetails(formData));
         console.log(formData)
-        navigate("/verify-otp");
+        if (result.payload) navigate("/verify-otp");
+        // navigate("/verify-otp");
     };
 
     return (
@@ -39,16 +39,16 @@ const Onboarding = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
-                        name="businessName"
+                        name="businessname"
                         placeholder="Business Name"
-                        value={formData.businessName}
+                        value={formData.businessname}
                         onChange={handleChange}
                         required
                         className="w-full p-2 border rounded"
                     />
                     <select
                         name="industry"
-                        value={formData.industry}
+                        value={formData.industrytype}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                     >

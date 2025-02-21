@@ -5,7 +5,7 @@ export const registerUser = createAsyncThunk(
     "auth/registerUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("/api/signup", userData);
+            const response = await axios.post("http://localhost:3000/api/v1/user/register", userData);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -15,10 +15,7 @@ export const registerUser = createAsyncThunk(
 
 const authSlice = createSlice({
     name: "auth",
-    initialState: { user: {
-        email: "something@example.com",
-            password: "something",
-        }, loading: false, error: null },
+    initialState: { user: null, loading: false, error: null },
     reducers: {},
     extraReducers: (builder) => {
         builder
@@ -27,7 +24,8 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                console.log(action.payload.data);
+                state.user = action.payload.data.user;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;

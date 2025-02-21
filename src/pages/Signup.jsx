@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,8 @@ const Signup = () => {
     const { loading, error } = useSelector((state) => state.auth);
 
     const [formData, setFormData] = useState({
-        name: "",
+        username: "",
+        fullname: "", // Add fullname to state
         email: "",
         password: "",
     });
@@ -20,10 +21,9 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // const result = await dispatch(registerUser(formData));
-        // if (result.payload) navigate("/choose-plan");
+        const result = await dispatch(registerUser(formData)); // Send formData with both username and fullname
         console.log(formData);
-        navigate("/choose-plan");
+        if (result.payload) navigate("/choose-plan");
     };
 
     return (
@@ -34,9 +34,18 @@ const Signup = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
-                        name="name"
+                        name="username"
+                        placeholder="Username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        required
+                        className="w-full p-2 border rounded"
+                    />
+                    <input
+                        type="text"
+                        name="fullname"
                         placeholder="Full Name"
-                        value={formData.name}
+                        value={formData.fullname}
                         onChange={handleChange}
                         required
                         className="w-full p-2 border rounded"
