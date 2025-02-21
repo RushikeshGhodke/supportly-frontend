@@ -15,6 +15,7 @@ import PendingComplaints from "./pages/PendingComplaints.jsx";
 import ResolvedComplaints from "./pages/ResolvedComplaints.jsx";
 import HighPriorityComplaints from "./pages/HighPriorityComplaints.jsx";
 import EscalatedComplaints from "./pages/EscalatedComplaints.jsx";
+import ComplaintForm from "./pages/ComplaintForm.jsx";
 
 const App = () => {
     return (
@@ -26,6 +27,7 @@ const App = () => {
                 <Route path="/choose-plan" element={<ChoosePlan />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/verify-otp" element={<VerifyOTP />} />
+                <Route path="/registerComplaint/" element={<ComplaintForm />} />
 
                 <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
                     <Route path="/setup-company" element={<SetupCompany />}/>
@@ -38,6 +40,7 @@ const App = () => {
                     <Route path="/resolvedComplaints" element={<ResolvedComplaints />}/>
                     <Route path="/highPriorityComplaints" element={<HighPriorityComplaints />}/>
                     <Route path="/escalatedComplaints" element={<EscalatedComplaints />}/>
+
                 </Route>
             </Routes>
         </Router>
