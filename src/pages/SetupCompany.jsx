@@ -1,25 +1,25 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
-const timezones = [
-    "UTC", "EST - Eastern Standard Time", "PST - Pacific Standard Time",
-    "CST - Central Standard Time", "IST - Indian Standard Time",
-    "GMT - Greenwich Mean Time", "CET - Central European Time"
-];
+import FormInput from "../components/ui/FormInput";
+import FormSelect from "../components/ui/FormSelect";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 
 const SetupCompany = () => {
     const navigate = useNavigate();
-    const { selectedPlan } = useSelector((state) => state.plan); // Fetch plan from Redux
+    const { selectedPlan } = useSelector((state) => state.plan);
 
     const [companyLogo, setCompanyLogo] = useState(null);
     const [address, setAddress] = useState("");
-    const [timezone, setTimezone] = useState("UTC");
-    const [supportHours, setSupportHours] = useState({ from: "", to: "" });
-    const [supportChannels, setSupportChannels] = useState([]);
+    const [timezone, setTimezone] = useState("UTC+0");
+    const [supportHours, setSupportHours] = useState("9 AM - 6 PM");
+    const [supportChannels, setSupportChannels] = useState(["Web Form"]);
 
     const handleFileChange = (e) => {
-        setCompanyLogo(e.target.files[0]);
+        if (e.target.files[0]) {
+            setCompanyLogo(e.target.files[0]);
+        }
     };
 
     const handleChannelChange = (e) => {
@@ -43,88 +43,81 @@ const SetupCompany = () => {
         navigate("/invite-team");
     };
 
+    // Timezone options
+    const timezoneOptions = [
+        "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5",
+        "UTC-4", "UTC-3", "UTC-2", "UTC-1", "UTC+0", "UTC+1", "UTC+2", "UTC+3",
+        "UTC+4", "UTC+5", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"
+    ];
+
+    // Support hours options
+    const supportHoursOptions = [
+        "9 AM - 5 PM", "9 AM - 6 PM", "8 AM - 6 PM", "8 AM - 8 PM", "24/7"
+    ];
+
     return (
-        <section className="w-full mt-16 flex justify-center items-start bg-gray-100">
-            <div className="bg-white rounded-xl shadow-lg w-full p-10">
-
-                <div>
-                    <h1 className="text-[#0061A1] text-2xl font-semibold mb-8">Setup Your Company</h1>
-
-                </div>
-
+        <section className="w-full mt-16 flex justify-center items-start bg-gray-100 p-4 md:p-6">
+            <Card
+                className="w-full max-w-3xl"
+                title="Setup Your Company"
+            >
                 <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Company Logo */}
+                    {/* Company Logo */}
                     <div>
                         <label className="text-[#7D7D7D] text-sm block mb-2">Company Logo</label>
-                        <input type="file" className="w-full" onChange={handleFileChange}/>
-                    </div>
-
-                    {/* Address */}
-                    <div>
-                        <label className="text-[#7D7D7D] text-sm block mb-2">Company Address</label>
                         <input
-                            className="w-full p-2 border-2 border-[#DAD7D7] rounded-md"
-                            type="text"
-                            placeholder="Enter company address"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            required
+                            type="file"
+                            onChange={handleFileChange}
+                            className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#0061A1]"
                         />
                     </div>
 
-                    <div className="flex flex-row gap-5">
-                        {/* Timezone (Dropdown) */}
-                        <div className="">
-                            <label className="text-[#7D7D7D] text-sm block mb-2">Timezone</label>
-                            <select
-                                className="w-full p-2 border-2 border-[#DAD7D7] rounded-md"
-                                value={timezone}
-                                onChange={(e) => setTimezone(e.target.value)}
-                                required
-                            >
-                                {timezones.map((tz) => (
-                                    <option key={tz} value={tz}>{tz}</option>
-                                ))}
-                            </select>
-                        </div>
+                    {/* Address */}
+                    <FormInput
+                        label="Company Address"
+                        id="address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Enter company address"
+                        required
+                    />
 
-                        {/* Support Hours (From & To) */}
-                        <div className="w-1/2 flex flex-row gap-4">
-                            <div>
-                                <label className="text-[#7D7D7D] text-sm block mb-2">From</label>
-                                <input
-                                    className="w-full p-2 border-2 border-[#DAD7D7] rounded-md"
-                                    type="time"
-                                    value={supportHours.from}
-                                    onChange={(e) => setSupportHours({...supportHours, from: e.target.value})}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-[#7D7D7D] text-sm block mb-2">To</label>
-                                <input
-                                    className="w-full p-2 border-2 border-[#DAD7D7] rounded-md"
-                                    type="time"
-                                    value={supportHours.to}
-                                    onChange={(e) => setSupportHours({...supportHours, to: e.target.value})}
-                                    required
-                                />
-                            </div>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Timezone (Dropdown) */}
+                        <FormSelect
+                            label="Timezone"
+                            id="timezone"
+                            value={timezone}
+                            onChange={(e) => setTimezone(e.target.value)}
+                            options={timezoneOptions}
+                        />
+
+                        {/* Support Hours (Dropdown) */}
+                        <FormSelect
+                            label="Support Hours"
+                            id="supportHours"
+                            value={supportHours}
+                            onChange={(e) => setSupportHours(e.target.value)}
+                            options={supportHoursOptions}
+                        />
                     </div>
 
-                    {/* Support Channels */}
+                    {/* Support Channels (Checkboxes) */}
                     <div>
                         <label className="text-[#7D7D7D] text-sm block mb-2">Support Channels</label>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {allChannels.map((channel) => (
-                                <label key={channel.name} className="flex items-center gap-2">
+                                <label
+                                    key={channel.name}
+                                    className={`flex items-center space-x-2 ${!channel.allowed ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                >
                                     <input
                                         type="checkbox"
                                         value={channel.name}
-                                        checked={supportChannels.includes(channel.name) || channel.allowed}
+                                        checked={supportChannels.includes(channel.name) || !channel.allowed}
                                         onChange={handleChannelChange}
                                         disabled={!channel.allowed}
+                                        className="h-4 w-4 text-[#0061A1] focus:ring-[#0061A1]"
                                     />
                                     <span className={channel.allowed ? "" : "text-gray-400"}>{channel.name}</span>
                                 </label>
@@ -136,18 +129,16 @@ const SetupCompany = () => {
                     </div>
 
                     {/* Submit Button */}
-                    <button
+                    <Button
                         type="submit"
-                        className="w-full bg-[#0061A1] text-white py-2 rounded-md hover:bg-[#004b7c] transition"
-                        onClick={() => navigate("/invite-team")}
+                        fullWidth
                     >
                         Next: Invite Team
-                    </button>
+                    </Button>
                 </form>
-            </div>
+            </Card>
         </section>
     );
-
 };
 
 export default SetupCompany;

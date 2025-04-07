@@ -28,6 +28,7 @@ import { AiOutlineTeam } from "react-icons/ai";
 import { GrIntegration } from "react-icons/gr";
 import { IoMdHelp } from "react-icons/io";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
+import LogoutButton from './LogoutButton';
 
 
 // Utility to map icon strings to actual icon components
@@ -49,7 +50,7 @@ const iconMap = {
     GrOverview: <GrOverview size={22} color="white" />,
     SiSimpleanalytics: <SiSimpleanalytics size={18} color="white" />,
     FaArrowTrendUp: <FaArrowTrendUp size={22} color="white" />,
-    TbAutomation : <TbAutomation  size={22} color="white" />,
+    TbAutomation: <TbAutomation size={22} color="white" />,
     FiSettings: <FiSettings size={22} color="white" />,
     TbReportSearch: <TbReportSearch size={22} color="white" />,
     AiOutlineTeam: <AiOutlineTeam size={22} color="white" />,
@@ -191,7 +192,7 @@ const Sidebar = () => {
             children: [
                 {
                     name: 'Web Form',
-                    slug: '/createTicket',
+                    slug: '/webform',
                     icon: 'BsTicket',
                     access: TicketManagementAccess[0],
                 },
@@ -289,8 +290,8 @@ const Sidebar = () => {
                     access: TicketManagementAccess[0],
                 },
                 {
-                    name: 'Localization & Language',
-                    slug: '/tickettracking',
+                    name: 'Plans',
+                    slug: '/plans',
                     icon: 'BsTicket',
                     access: TicketManagementAccess[0],
                 },
@@ -375,8 +376,8 @@ const Sidebar = () => {
                     )}
                 </div>
             </div>
-            <div>
-                {/* <LogoutButton /> */}
+            <div className="mt-auto pb-4">
+                <LogoutButton />
             </div>
         </div>
     )

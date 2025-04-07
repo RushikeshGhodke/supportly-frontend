@@ -1,167 +1,179 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { IoIosStats } from "react-icons/io";
+import { Bar } from "react-chartjs-2";
+import Card from "../components/ui/Card";
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiUsers } from "react-icons/fi";
 
 const Dashboard = () => {
-    const { list, stats } = useSelector((state) => state.complaints);
-    const [currentPage, setCurrentPage] = useState(1);
-    const complaintsPerPage = 5;
+    const { stats, list } = useSelector((state) => state.complaints);
+    const { business } = useSelector((state) => state.onboarding);
+    const [recentComplaints, setRecentComplaints] = useState([]);
 
-    // Function to Convert Priority Score to Category
-    const getPriorityCategory = (score) => {
-        if (score >= 1 && score <= 2) return "Low";
-        if (score >= 3 && score <= 4) return "Medium";
-        return "High";
-    };
+    // Sort complaints by date (newest first) and take the first 5
+    useEffect(() => {
+        if (list && list.length) {
+            const sorted = [...list].sort((a, b) => {
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            }).slice(0, 5);
+            setRecentComplaints(sorted);
+        }
+    }, [list]);
 
-    // Pagination
-    const indexOfLastComplaint = currentPage * complaintsPerPage;
-    const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
-    const currentComplaints = list.slice(indexOfFirstComplaint, indexOfLastComplaint);
-    const totalPages = Math.ceil(list.length / complaintsPerPage);
-
-    const nextPage = () => {
-        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-    };
-
-    const prevPage = () => {
-        if (currentPage > 1) setCurrentPage(currentPage - 1);
+    // Chart data for complaints by priority
+    const chartData = {
+        labels: ["High", "Medium", "Low"],
+        datasets: [
+            {
+                label: "Complaints by Priority",
+                data: [stats?.highPriority || 0, stats?.mediumPriority || 0, stats?.lowPriority || 0],
+                backgroundColor: ["#ef4444", "#f59e0b", "#10b981"],
+            },
+        ],
     };
 
     return (
-        <section className="w-full mt-16 flex justify-center items-start bg-gray-100">
-            <div className="bg-white rounded-xl shadow-lg w-full p-10">
-                {/* Dashboard Title & Actions */}
-                <div className="flex justify-between items-center mb-7">
-                    <h1 className="text-[#0061A1] text-2xl font-semibold">Dashboard</h1>
-                    <div className="flex gap-4">
-                        {/*<Link to="/complaints/new" className="bg-[#0061A1] text-white py-2 px-4 rounded-md">*/}
-                        {/*    + New Complaint*/}
-                        {/*</Link>*/}
-                        <Link to="/reports" className="bg-gray-800 text-white py-2 px-4 rounded-md">
-                            View Reports
+        <section className="w-full mt-16 min-h-screen bg-gray-100 p-4 md:p-6">
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-[#0061A1]">
+                    Welcome, {business?.data?.newOrganization?.businessname || "User"}
+                </h1>
+                <p className="text-gray-600">
+                    Here's an overview of your customer support activities
+                </p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+                <StatCard
+                    title="Total Complaints"
+                    value={stats?.total || 0}
+                    icon={<FiUsers />}
+                    color="blue"
+                />
+                <StatCard
+                    title="Pending"
+                    value={stats?.pending || 0}
+                    icon={<FiAlertTriangle />}
+                    color="yellow"
+                />
+                <StatCard
+                    title="High Priority"
+                    value={stats?.highPriority || 0}
+                    icon={<FiAlertCircle />}
+                    color="red"
+                />
+                <StatCard
+                    title="Resolved"
+                    value={stats?.resolved || 0}
+                    icon={<FiCheckCircle />}
+                    color="green"
+                />
+            </div>
+
+            {/* Main Dashboard Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Recent Complaints */}
+                <Card className="lg:col-span-2">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold">Recent Complaints</h2>
+                        <Link to="/complaintsDashboard" className="text-blue-600 hover:underline">
+                            View All
                         </Link>
                     </div>
-                </div>
 
-                {/* Stats Section */}
-                <div className="grid grid-cols-4 gap-6 mb-6">
-                    <div className="bg-blue-100 p-4 rounded-md shadow">
-                        <h2 className="text-lg font-semibold">Total Complaints</h2>
-                        <p className="text-xl font-bold">{stats.total || 0}</p>
-                    </div>
-                    <div className="bg-yellow-100 p-4 rounded-md shadow">
-                        <h2 className="text-lg font-semibold">High Priority</h2>
-                        <p className="text-xl font-bold">{stats.highPriority || 0}</p>
-                    </div>
-                    <div className="bg-green-100 p-4 rounded-md shadow">
-                        <h2 className="text-lg font-semibold">Resolved</h2>
-                        <p className="text-xl font-bold">{stats.resolved || 0}</p>
-                    </div>
-                    <div className="bg-red-100 p-4 rounded-md shadow">
-                        <h2 className="text-lg font-semibold">Pending</h2>
-                        <p className="text-xl font-bold">{stats.pending || 0}</p>
-                    </div>
-                </div>
-
-                {/* Complaints Table with Pagination */}
-                <div className="bg-gray-100 p-4 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center">
-                        <IoIosStats className="mr-2 text-blue-500" /> Recent Complaints
-                    </h2>
-
-                    {list.length === 0 ? (
-                        <p className="text-gray-500">No complaints found.</p>
-                    ) : (
-                        <>
-                            <table className="w-full border-collapse border border-gray-200">
-                                <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="border p-2">Customer</th>
-                                    <th className="border p-2">Type</th>
-                                    <th className="border p-2">Issue</th>
-                                    <th className="border p-2">Priority</th>
-                                    <th className="border p-2">Status</th>
-                                    <th className="border p-2">Actions</th>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">ID</th>
+                                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Customer</th>
+                                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 hidden md:table-cell">Issue</th>
+                                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Priority</th>
+                                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Status</th>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                {currentComplaints.map((complaint, index) => {
-                                    const priorityCategory = getPriorityCategory(complaint.priorityScore);
-
-                                    return (
-                                        <tr key={index} className="text-center">
-                                            <td className="border p-2">{complaint.customerName}</td>
-                                            <td className="border p-2">{complaint.type}</td>
-                                            <td className="border p-2">{complaint.issue}</td>
-                                            <td className="border p-2">
-                                                    <span
-                                                        className={`px-2 py-1 rounded-md ${
-                                                            priorityCategory === "High"
-                                                                ? "bg-[#FF7B79] text-[#A22F2E]"
-                                                                : priorityCategory === "Medium"
-                                                                    ? "bg-[#FFE978] text-[#9B8D0A]"
-                                                                    : "bg-[#AEFFC0] text-[#12A70F]"
-                                                        }`}
-                                                    >
-                                                        {priorityCategory}
-                                                    </span>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {recentComplaints.length > 0 ? (
+                                    recentComplaints.map((complaint) => (
+                                        <tr key={complaint.id}>
+                                            <td className="px-4 py-2 whitespace-nowrap">{complaint.id}</td>
+                                            <td className="px-4 py-2 whitespace-nowrap">{complaint.customerName}</td>
+                                            <td className="px-4 py-2 hidden md:table-cell">
+                                                {complaint.issue.length > 30
+                                                    ? `${complaint.issue.substring(0, 30)}...`
+                                                    : complaint.issue}
                                             </td>
-                                            <td className="border p-2">
-                                                    <span
-                                                        className={`px-2 py-1 rounded-md ${
-                                                            complaint.status === "Resolved"
-                                                                ? "bg-[#AEFFC0] text-[#12A70F]"
-                                                                : "bg-[#FF7B79] text-[#A22F2E]"
-                                                        }`}
-                                                    >
-                                                        {complaint.status}
-                                                    </span>
+                                            <td className="px-4 py-2 whitespace-nowrap">
+                                                <span className={`px-2 py-1 text-xs rounded-full ${complaint.priorityScore >= 4 ? "bg-red-100 text-red-800" :
+                                                        complaint.priorityScore >= 2 ? "bg-yellow-100 text-yellow-800" :
+                                                            "bg-green-100 text-green-800"
+                                                    }`}>
+                                                    {complaint.priorityScore >= 4 ? "High" :
+                                                        complaint.priorityScore >= 2 ? "Medium" : "Low"}
+                                                </span>
                                             </td>
-                                            <td className="border p-2">
-                                                <Link
-                                                    to={`/complaints/${complaint.id}`}
-                                                    className="text-blue-500 underline"
-                                                >
-                                                    View
-                                                </Link>
+                                            <td className="px-4 py-2 whitespace-nowrap">
+                                                <span className={`px-2 py-1 text-xs rounded-full ${complaint.status === "Resolved" ? "bg-green-100 text-green-800" :
+                                                        complaint.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
+                                                            "bg-red-100 text-red-800"
+                                                    }`}>
+                                                    {complaint.status}
+                                                </span>
                                             </td>
                                         </tr>
-                                    );
-                                })}
-                                </tbody>
-                            </table>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="px-4 py-4 text-center text-gray-500">
+                                            No complaints found
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </Card>
 
-                            {/* Pagination Controls */}
-                            <div className="flex justify-between items-center mt-4">
-                                <button
-                                    onClick={prevPage}
-                                    disabled={currentPage === 1}
-                                    className={`px-4 py-2 text-white rounded-md ${
-                                        currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                                    }`}
-                                >
-                                    Previous
-                                </button>
-                                <span className="text-lg font-semibold">
-                                    Page {currentPage} of {totalPages}
-                                </span>
-                                <button
-                                    onClick={nextPage}
-                                    disabled={currentPage === totalPages}
-                                    className={`px-4 py-2 text-white rounded-md ${
-                                        currentPage === totalPages ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                                    }`}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </>
-                    )}
-                </div>
+                {/* Chart */}
+                <Card>
+                    <h2 className="text-xl font-semibold mb-4">Complaints by Priority</h2>
+                    <div className="h-64">
+                        <Bar
+                            data={chartData}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                            }}
+                        />
+                    </div>
+                </Card>
             </div>
         </section>
+    );
+};
+
+// Stat Card Component
+const StatCard = ({ title, value, icon, color }) => {
+    const colorClasses = {
+        blue: "border-blue-500 text-blue-600",
+        green: "border-green-500 text-green-600",
+        yellow: "border-yellow-500 text-yellow-600",
+        red: "border-red-500 text-red-600",
+    };
+
+    return (
+        <div className={`bg-white p-6 rounded-lg shadow-md border-l-4 ${colorClasses[color] || colorClasses.blue}`}>
+            <div className="flex justify-between items-start">
+                <div>
+                    <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+                    <p className="text-3xl font-bold mt-2">{value}</p>
+                </div>
+                <div className={`text-2xl ${colorClasses[color] || colorClasses.blue}`}>
+                    {icon}
+                </div>
+            </div>
+        </div>
     );
 };
 

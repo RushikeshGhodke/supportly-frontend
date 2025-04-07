@@ -2,54 +2,71 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { verifyOTP } from "../redux/slices/otpSlice";
 import { useNavigate } from "react-router-dom";
+import FormInput from "../components/ui/FormInput";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 
 const VerifyOTP = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { user } = useSelector((state) => state.auth); // Fetch email from Redux
-    const { loading, otpVerified, error } = useSelector((state) => state.otp);
-
+    const { loading, error } = useSelector((state) => state.otp);
+    const { business } = useSelector((state) => state.onboarding);
     const [otp, setOtp] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await dispatch(verifyOTP({ email: user.email, otp }));
-        if (result.payload) navigate("/setup-company");
-        navigate("/setup-company");
+        if (otp.length !== 4) {
+            alert("Please enter a valid 4-digit OTP");
+            return;
+        }
+
+        try {
+            const result = await dispatch(verifyOTP({
+                email: business?.email || "",
+                otp
+            }));
+
+            if (result.meta.requestStatus === "fulfilled") {
+                navigate("/setup-company");
+            }
+        } catch (error) {
+            console.error("OTP verification failed:", error);
+        }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold text-center mb-4">Verify OTP</h2>
-                <p className="text-center text-gray-600 mb-4">
-                    Enter the OTP sent to <strong>{user.email}</strong>
-                </p>
-                {error && <p className="text-red-500 text-center">{error}</p>}
+        <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
+            <Card
+                className="w-full max-w-md"
+                title="Verify OTP"
+                subtitle="We sent a verification code to your email. Please enter it below."
+            >
+                {error && (
+                    <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+                        {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
-                        type="text"
-                        name="otp"
-                        placeholder="Enter OTP"
+                    <FormInput
+                        label="OTP Code"
+                        id="otp"
                         value={otp}
                         onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter 4-digit OTP"
+                        maxLength="4"
                         required
-                        className="w-full p-2 border rounded text-center"
                     />
-                    <button
+
+                    <Button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded"
                         disabled={loading}
+                        fullWidth
                     >
                         {loading ? "Verifying..." : "Verify OTP"}
-                    </button>
+                    </Button>
                 </form>
-                {otpVerified && (
-                    <p className="text-green-500 text-center mt-4">
-                        OTP Verified! Redirecting...
-                    </p>
-                )}
-            </div>
+            </Card>
         </div>
     );
 };

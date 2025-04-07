@@ -1,122 +1,137 @@
-import { useDispatch, useSelector } from "react-redux";
-import { addMemberRow, updateMember, removeMemberRow, inviteTeamMembers } from "../redux/slices/teamSlice";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiX, FiPlus, FiSend } from "react-icons/fi";
+import FormInput from "../components/ui/FormInput";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 
 const InviteTeam = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { teamMembers, orgCode, loading, error } = useSelector((state) => state.team);
+    const [orgCode] = useState("ORG123456");
+    const [teamMembers, setTeamMembers] = useState([
+        { email: "", role: "Member" }
+    ]);
 
     const handleCopyCode = () => {
         navigator.clipboard.writeText(orgCode);
         alert("Organization code copied to clipboard!");
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (teamMembers.some(member => !member.email.trim())) {
-            alert("Please fill out all email fields before proceeding.");
-            return;
-        }
+    const handleAddTeamMember = () => {
+        setTeamMembers([...teamMembers, { email: "", role: "Member" }]);
+    };
 
-        // const result = await dispatch(inviteTeamMembers({ teamMembers }));
-        // if (result.payload) navigate("/dashboard");
-        navigate("/dashboard")
+    const handleRemoveTeamMember = (index) => {
+        const updatedMembers = [...teamMembers];
+        updatedMembers.splice(index, 1);
+        setTeamMembers(updatedMembers);
+    };
+
+    const handleTeamMemberChange = (index, field, value) => {
+        const updatedMembers = [...teamMembers];
+        updatedMembers[index][field] = value;
+        setTeamMembers(updatedMembers);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log(teamMembers);
+        navigate("/dashboard");
+    };
+
+    const handleSkip = () => {
+        navigate("/dashboard");
     };
 
     return (
-        <section className="w-full mt-16 flex justify-center items-start bg-gray-100">
-            <div className="bg-white rounded-xl shadow-lg w-full p-10">
-                <h1 className="text-[#0061A1] text-2xl font-semibold mb-7">Invite Your Team</h1>
-
+        <section className="w-full mt-16 flex justify-center items-start bg-gray-100 p-4 md:p-6">
+            <Card 
+                className="w-full max-w-3xl"
+                title="Invite Your Team"
+            >
                 {/* Organization Code Section */}
-                <div className="bg-gray-200 p-4 rounded-md text-center">
+                <div className="bg-gray-200 p-4 rounded-md text-center mb-6">
                     <p className="text-lg font-semibold">Share This Organization Code</p>
                     <div className="flex justify-center items-center gap-3 mt-1">
                         <span className="bg-white text-gray-800 px-4 py-1 rounded-md text-lg font-bold">{orgCode}</span>
-                        <button className="bg-blue-600 text-white px-4 py-1 rounded-md" onClick={handleCopyCode}>
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={handleCopyCode}
+                        >
                             Copy
-                        </button>
+                        </Button>
                     </div>
                     <p className="text-sm mt-2 text-gray-600">New users can enter this code to join your company.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Dynamic Team Member List */}
-                    <div>
-                        <h3 className="text-lg font-semibold mb-2">Add Team Members</h3>
-                        <div className="space-y-4">
-                            {teamMembers.map((member, index) => (
-                                <div key={index}
-                                     className="flex gap-3 items-center bg-gray-100 p-3 rounded-md shadow-sm">
-                                    <input
-                                        type="email"
-                                        placeholder="Enter email"
-                                        value={member.email}
-                                        onChange={(e) => dispatch(updateMember({
-                                            index,
-                                            key: "email",
-                                            value: e.target.value
-                                        }))}
-                                        className="w-2/3 p-2 border-2 border-[#DAD7D7] rounded-md"
-                                        required
-                                    />
-                                    <select
-                                        value={member.role}
-                                        onChange={(e) => dispatch(updateMember({
-                                            index,
-                                            key: "role",
-                                            value: e.target.value
-                                        }))}
-                                        className="w-1/3 p-2 border-2 border-[#DAD7D7] rounded-md"
-                                    >
-                                        <option>Support Agent</option>
-                                        <option>Admin</option>
-                                    </select>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-medium">Team Members</h3>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleAddTeamMember}
+                                className="flex items-center gap-1"
+                            >
+                                <FiPlus size={16} /> Add Member
+                            </Button>
+                        </div>
+                        
+                        {teamMembers.map((member, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <FormInput
+                                    type="email"
+                                    placeholder="Email address"
+                                    value={member.email}
+                                    onChange={(e) => handleTeamMemberChange(index, "email", e.target.value)}
+                                    className="flex-grow"
+                                />
+                                <select
+                                    value={member.role}
+                                    onChange={(e) => handleTeamMemberChange(index, "role", e.target.value)}
+                                    className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#0061A1]"
+                                >
+                                    <option value="Admin">Admin</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Member">Member</option>
+                                </select>
+                                {teamMembers.length > 1 && (
                                     <button
                                         type="button"
-                                        className="bg-red-500 text-white px-3 py-1 rounded-md"
-                                        onClick={() => dispatch(removeMemberRow(index))}
-                                        disabled={teamMembers.length === 1}
+                                        onClick={() => handleRemoveTeamMember(index)}
+                                        className="text-red-500 hover:text-red-700"
                                     >
-                                        X
+                                        <FiX size={20} />
                                     </button>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Add More Button */}
-                        <button
-                            type="button"
-                            className="mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition"
-                            onClick={() => dispatch(addMemberRow())}
-                        >
-                            + Add Another Member
-                        </button>
+                                )}
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Error Message */}
-                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
-                    {/* Submit & Skip Buttons */}
-                    <div className="flex justify-between">
-                        <button
-                            type="button"
-                            className="text-blue-600 underline"
-                            onClick={() => navigate("/dashboard")}
-                        >
-                            Skip
-                        </button>
-                        <button
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        <Button
                             type="submit"
-                            className="bg-[#0061A1] text-white px-6 py-2 rounded-md hover:bg-[#004b7c] transition"
-                            disabled={loading}
+                            className="flex-1 flex items-center justify-center gap-2"
+                            fullWidth
                         >
-                            {loading ? "Sending Invites..." : "Send Invites"}
-                        </button>
+                            <FiSend size={16} /> Send Invitations
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={handleSkip}
+                            className="flex-1"
+                            fullWidth
+                        >
+                            Skip for Now
+                        </Button>
                     </div>
                 </form>
-            </div>
+            </Card>
         </section>
     );
 };

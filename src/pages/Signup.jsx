@@ -1,19 +1,28 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../redux/slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import FormInput from "../components/ui/FormInput";
+import Button from "../components/ui/Button";
 
 const Signup = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { loading, error } = useSelector((state) => state.auth);
+    const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
 
     const [formData, setFormData] = useState({
         username: "",
-        fullname: "", // Add fullname to state
+        fullname: "",
         email: "",
         password: "",
     });
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate("/dashboard");
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,61 +30,87 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await dispatch(registerUser(formData)); // Send formData with both username and fullname
-        console.log(formData);
+        const result = await dispatch(registerUser(formData));
         if (result.payload) navigate("/choose-plan");
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
-                {error && <p className="text-red-500 text-center">{error}</p>}
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+                <h2 className="text-2xl font-bold text-center mb-6 text-[#0061A1]">Sign Up</h2>
+
+                <div className="mb-4 text-center">
+                    <Link to="/" className="text-[#0061A1] hover:underline">
+                        ← Back to home
+                    </Link>
+                </div>
+
+                {error && (
+                    <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+                        {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
-                        type="text"
+                    <FormInput
+                        label="Username"
+                        id="username"
                         name="username"
-                        placeholder="Username"
                         value={formData.username}
                         onChange={handleChange}
+                        placeholder="Choose a username"
                         required
-                        className="w-full p-2 border rounded"
                     />
-                    <input
-                        type="text"
+
+                    <FormInput
+                        label="Full Name"
+                        id="fullname"
                         name="fullname"
-                        placeholder="Full Name"
                         value={formData.fullname}
                         onChange={handleChange}
+                        placeholder="Enter your full name"
                         required
-                        className="w-full p-2 border rounded"
                     />
-                    <input
+
+                    <FormInput
+                        label="Email"
+                        id="email"
                         type="email"
                         name="email"
-                        placeholder="Email"
                         value={formData.email}
                         onChange={handleChange}
+                        placeholder="Enter your email"
                         required
-                        className="w-full p-2 border rounded"
                     />
-                    <input
+
+                    <FormInput
+                        label="Password"
+                        id="password"
                         type="password"
                         name="password"
-                        placeholder="Password"
                         value={formData.password}
                         onChange={handleChange}
+                        placeholder="Create a password"
                         required
-                        className="w-full p-2 border rounded"
                     />
-                    <button
+
+                    <Button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded"
+                        fullWidth
                         disabled={loading}
                     >
                         {loading ? "Signing up..." : "Sign Up"}
-                    </button>
+                    </Button>
                 </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-gray-600">
+                        Already have an account?{" "}
+                        <Link to="/login" className="text-[#0061A1] hover:underline">
+                            Log In
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

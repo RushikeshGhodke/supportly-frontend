@@ -1,50 +1,69 @@
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
-import {LandingPage, Layout} from './pages/index.js'
-import PrivateRoute from "./pages/PrivateRoute.jsx";
-import Onboarding from "./pages/Onboarding.jsx";
-import SetupCompany from "./pages/SetupCompany.jsx";
-import Signup from "./pages/Signup.jsx";
-import ChoosePlan from "./pages/ChoosePlan.jsx";
-import VerifyOTP from "./pages/VerifyOTP.jsx";
-import InviteTeam from "./pages/InviteTeam.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Reports from "./pages/Reports.jsx";
-import ComplaintsDashboard from "./pages/ComplaintsDashboard.jsx";
-import ComplaintDetails from "./pages/ComplaintDetails.jsx";
-import PendingComplaints from "./pages/PendingComplaints.jsx";
-import ResolvedComplaints from "./pages/ResolvedComplaints.jsx";
-import HighPriorityComplaints from "./pages/HighPriorityComplaints.jsx";
-import EscalatedComplaints from "./pages/EscalatedComplaints.jsx";
-import ComplaintForm from "./pages/ComplaintForm.jsx";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { checkAuth } from "./redux/slices/authSlice";
 
-const App = () => {
+// Components and Pages
+import Layout from "./pages/Layout";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import LandingPage from "./pages/landingPage/LandingPage";
+import PrivateRoute from "./pages/PrivateRoute";
+import Dashboard from "./pages/Dashboard";
+import VerifyOTP from "./pages/VerifyOTP";
+import Onboarding from "./pages/Onboarding";
+import ChoosePlan from "./pages/ChoosePlan";
+import ComplaintForm from "./pages/ComplaintForm";
+// Import other components as needed
+
+function App() {
+    const dispatch = useDispatch();
+    const { isAuthenticated } = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        dispatch(checkAuth());
+    }, [dispatch]);
+
     return (
         <Router>
             <Routes>
                 {/* Public Routes */}
-                <Route path="/" element={<LandingPage/>}/>
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/choose-plan" element={<ChoosePlan />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/verify-otp" element={<VerifyOTP />} />
-                <Route path="/registerComplaint/" element={<ComplaintForm />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
+                <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Signup />} />
+                <Route path="/complaint/:organizationId" element={<ComplaintForm />} />
 
-                <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
-                    <Route path="/setup-company" element={<SetupCompany />}/>
-                    <Route path="/invite-team" element={<InviteTeam />}/>
-                    <Route path="/dashboard" element={<Dashboard />}/>
-                    <Route path="/reports" element={<Reports />}/>
-                    <Route path="/complaintsDashboard" element={<ComplaintsDashboard />}/>
-                    <Route path="/complaints/:id" element={<ComplaintDetails />}/>
-                    <Route path="/pendingComplaints" element={<PendingComplaints />}/>
-                    <Route path="/resolvedComplaints" element={<ResolvedComplaints />}/>
-                    <Route path="/highPriorityComplaints" element={<HighPriorityComplaints />}/>
-                    <Route path="/escalatedComplaints" element={<EscalatedComplaints />}/>
+                {/* Private Routes wrapped with Layout */}
+                <Route path="/" element={<Layout />}>
+                    <Route path="dashboard" element={
+                        <PrivateRoute>
+                            <Dashboard />
+                        </PrivateRoute>
+                    } />
+                    <Route path="verify-otp" element={
+                        <PrivateRoute>
+                            <VerifyOTP />
+                        </PrivateRoute>
+                    } />
+                    <Route path="onboarding" element={
+                        <PrivateRoute>
+                            <Onboarding />
+                        </PrivateRoute>
+                    } />
+                    <Route path="choose-plan" element={
+                        <PrivateRoute>
+                            <ChoosePlan />
+                        </PrivateRoute>
+                    } />
 
+                    {/* Add other private routes here */}
                 </Route>
+
+                {/* Fallback route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </Router>
-    )
+    );
 }
 
-export default App
+export default App;

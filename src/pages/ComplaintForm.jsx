@@ -1,110 +1,134 @@
-import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import FormInput from "../components/ui/FormInput";
+import FormTextarea from "../components/ui/FormTextarea";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 
 const ComplaintForm = () => {
-    const [searchParams] = useSearchParams(); // Extract query params
-    const [tenantId, setTenantId] = useState("");
+    const navigate = useNavigate();
+    const { organizationId } = useParams();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
+
     const [formData, setFormData] = useState({
         customerName: "",
         email: "",
         complaint: "",
     });
 
-    useEffect(() => {
-        // Get the tenant_id from the URL query parameter (t)
-        const tenantFromURL = searchParams.get("t");
-        if (tenantFromURL) {
-            setTenantId(tenantFromURL); // Set the tenantId state from the query string
-        }
-    }, [searchParams]); // Dependency on searchParams, so it updates if the query changes
-
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!tenantId) {
-            alert("Invalid organization link!"); // If no tenantId, show an error
-            return;
-        }
+        setLoading(true);
+        setError("");
 
         try {
-            console.log(formData,tenantId)
-            const response = await axios.post("http://localhost:3000/api/v1/complaints/registerComplaint", {
-                ...formData,
-                tenantId,
+            // In a real implementation, you would send this to your backend
+            // For demo purposes, we'll simulate success after a delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Simulate API call
+            // const response = await axios.post(`/api/v1/complaints/register/${organizationId}`, formData);
+
+            setSuccess(true);
+            setFormData({
+                customerName: "",
+                email: "",
+                complaint: ""
             });
 
-            console.log(response);
+            // Redirect or show success message
+            setTimeout(() => {
+                navigate("/");
+            }, 3000);
 
-            alert("Complaint Registered Successfully!");
-            setFormData({ customerName: "", email: "", complaint: "" });
-        } catch (error) {
-            console.error("Error submitting complaint:", error);
-            alert("Failed to register complaint.");
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to submit complaint");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center mt-16 w-max bg-white border rounded-xl p-10 mx-auto">
-            <h1 className="text-[#0061A1] text-2xl font-semibold mb-10">Register Complaint</h1>
+        <div className="min-h-screen flex justify-center items-center bg-gray-100 p-4 sm:p-6 md:p-8">
+            <Card
+                className="w-full max-w-md"
+                title="Submit Your Complaint"
+            >
+                {success ? (
+                    <div className="bg-green-100 text-green-700 p-4 rounded mb-4">
+                        <p className="text-center">Your complaint has been submitted successfully!</p>
+                        <p className="text-center text-sm mt-2">Redirecting to home page...</p>
+                    </div>
+                ) : (
+                    <>
+                        {error && (
+                            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+                                {error}
+                            </div>
+                        )}
 
-            {tenantId ? (
-                <p className="text-[#0061A1] text-lg mb-6">Filing for: <strong>{tenantId}</strong></p>
-            ) : (
-                <p className="text-red-600 text-lg mb-6">Invalid URL</p>
-            )}
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <FormInput
+                                label="Your Name"
+                                id="customerName"
+                                name="customerName"
+                                value={formData.customerName}
+                                onChange={handleChange}
+                                placeholder="Enter your full name"
+                                required
+                            />
 
-            <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6 w-80">
-                {/* Customer Name Field */}
-                <div className="flex flex-col gap-2 w-full relative">
-                    <label className="text-[#7D7D7D] text-sm">Customer Name</label>
-                    <input
-                        className="w-full p-2 pr-10 border-2 border-[#DAD7D7] rounded-[5px] text-[16px]"
-                        type="text"
-                        name="customerName"
-                        value={formData.customerName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                            <FormInput
+                                label="Email Address"
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="Enter your email address"
+                                required
+                            />
 
-                {/* Email Field */}
-                <div className="flex flex-col gap-2 w-full relative">
-                    <label className="text-[#7D7D7D] text-sm">Email</label>
-                    <input
-                        className="w-full p-2 pr-10 border-2 border-[#DAD7D7] rounded-[5px] text-[16px]"
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                            <FormTextarea
+                                label="Describe Your Issue"
+                                id="complaint"
+                                name="complaint"
+                                value={formData.complaint}
+                                onChange={handleChange}
+                                placeholder="Please provide details about your issue"
+                                rows={5}
+                                required
+                            />
 
-                {/* Complaint Field */}
-                <div className="flex flex-col gap-2 w-full relative">
-                    <label className="text-[#7D7D7D] text-sm">Complaint</label>
-                    <textarea
-                        className="w-full p-2 pr-10 border-2 border-[#DAD7D7] rounded-[5px] text-[16px]"
-                        name="complaint"
-                        value={formData.complaint}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                fullWidth
+                            >
+                                {loading ? "Submitting..." : "Submit Complaint"}
+                            </Button>
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    className="bg-[#0061A1] text-white py-2 px-2 rounded w-full text-center cursor-pointer"
-                    disabled={!tenantId}
-                >
-                    Submit Complaint
-                </button>
-            </form>
+                            <div className="text-center mt-4">
+                                <Link to="/" className="text-[#0061A1] text-sm hover:underline">
+                                    Back to home
+                                </Link>
+                            </div>
+                        </form>
+                    </>
+                )}
+            </Card>
         </div>
     );
 };

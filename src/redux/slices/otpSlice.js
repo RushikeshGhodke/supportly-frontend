@@ -9,7 +9,7 @@ export const verifyOTP = createAsyncThunk(
             const response = await axios.post("http://localhost:3000/api/v1/organization/otpverification", { email, otp });
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data || { message: "Verification failed" });
         }
     }
 );
@@ -17,7 +17,7 @@ export const verifyOTP = createAsyncThunk(
 const otpSlice = createSlice({
     name: "otp",
     initialState: {
-        otpSent: false, // Can be updated if we track OTP sending
+        otpSent: false,
         otpVerified: false,
         loading: false,
         error: null,
@@ -26,6 +26,11 @@ const otpSlice = createSlice({
         setOtpSent: (state, action) => {
             state.otpSent = action.payload;
         },
+        resetOtpState: (state) => {
+            state.otpSent = false;
+            state.otpVerified = false;
+            state.error = null;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -39,11 +44,10 @@ const otpSlice = createSlice({
             })
             .addCase(verifyOTP.rejected, (state, action) => {
                 state.loading = false;
-                state.otpVerified = false;
-                state.error = action.payload;
+                state.error = action.payload?.message || "Verification failed";
             });
     },
 });
 
-export const { setOtpSent } = otpSlice.actions;
+export const { setOtpSent, resetOtpState } = otpSlice.actions;
 export default otpSlice.reducer;
