@@ -66,14 +66,25 @@ export const checkAuth = createAsyncThunk(
             const token = localStorage.getItem("token");
             if (!token) return null;
 
+            // Fix how token is sent in request
             const response = await axios.get(`${API_URL}/user/verify-token`, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
+            
+            console.log("Token verification response:", response.data);
             return response.data.data;
         } catch (error) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("refreshToken");
-            return rejectWithValue("Authentication failed");
+            console.error("Auth check error:", error.response?.data || error.message);
+            
+            // Only remove token if it's actually invalid, not for network errors
+            if (error.response?.status === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("refreshToken");
+            }
+            
+            return rejectWithValue(error.response?.data?.message || "Authentication failed");
         }
     }
 );

@@ -61,9 +61,9 @@ function App() {
                         </PrivateRoute>
                     } />
                     <Route path="choose-plan" element={
-                        <PrivateRoute>
+                        // <PrivateRoute>
                             <ChoosePlan />
-                        </PrivateRoute>
+                        // </PrivateRoute> 
                     } />
                     <Route path="setup-company" element={
                         <PrivateRoute>
