@@ -1,15 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API_URL = "http://localhost:3000/api/v1";
+
 // Register user
 export const registerUser = createAsyncThunk(
     "auth/registerUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("http://localhost:3000/api/v1/user/register", userData);
-            return response.data;
+            const response = await axios.post(`${API_URL}/user/register`, userData);
+            localStorage.setItem("token", response.data.data.accessToken);
+            return response.data.data;
         } catch (error) {
-            return rejectWithValue(error.response?.data || { message: "Registration failed" });
+            return rejectWithValue(
+                error.response?.data?.message || "Registration failed"
+            );
         }
     }
 );
@@ -19,12 +24,14 @@ export const loginUser = createAsyncThunk(
     "auth/loginUser",
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post("http://localhost:3000/api/v1/user/login", userData);
-            localStorage.setItem("token", response.data.accessToken);
-            localStorage.setItem("refreshToken", response.data.refreshToken);
-            return response.data;
+            const response = await axios.post(`${API_URL}/user/login`, userData);
+            localStorage.setItem("token", response.data.data.accessToken);
+            localStorage.setItem("refreshToken", response.data.data.refreshToken);
+            return response.data.data;
         } catch (error) {
-            return rejectWithValue(error.response?.data || { message: "Login failed" });
+            return rejectWithValue(
+                error.response?.data?.message || "Invalid credentials"
+            );
         }
     }
 );
@@ -34,11 +41,19 @@ export const logoutUser = createAsyncThunk(
     "auth/logoutUser",
     async (_, { rejectWithValue }) => {
         try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                await axios.post(`${API_URL}/user/logout`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            }
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
             return null;
         } catch (error) {
-            return rejectWithValue({ message: "Logout failed" });
+            localStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            return rejectWithValue("Logout failed");
         }
     }
 );
@@ -49,32 +64,27 @@ export const checkAuth = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const token = localStorage.getItem("token");
-            if (!token) {
-                return null;
-            }
-            
-            // Verify token validity with backend
-            const response = await axios.get("http://localhost:3000/api/v1/user/verify-token", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            if (!token) return null;
+
+            const response = await axios.get(`${API_URL}/user/verify-token`, {
+                headers: { Authorization: `Bearer ${token}` }
             });
-            return response.data;
+            return response.data.data;
         } catch (error) {
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
-            return rejectWithValue({ message: "Authentication failed" });
+            return rejectWithValue("Authentication failed");
         }
     }
 );
 
 const authSlice = createSlice({
     name: "auth",
-    initialState: { 
-        user: null, 
-        loading: false, 
+    initialState: {
+        user: null,
+        loading: false,
         error: null,
-        isAuthenticated: false 
+        isAuthenticated: false
     },
     reducers: {
         clearError: (state) => {
@@ -90,12 +100,13 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload.data.user;
+                state.user = action.payload.user;
+                state.isAuthenticated = true;
                 state.error = null;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || "Registration failed";
+                state.error = action.payload || "Registration failed";
             })
             // Login cases
             .addCase(loginUser.pending, (state) => {
@@ -110,7 +121,7 @@ const authSlice = createSlice({
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || "Login failed";
+                state.error = action.payload || "Login failed";
             })
             // Logout cases
             .addCase(logoutUser.pending, (state) => {
@@ -122,9 +133,10 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.error = null;
             })
-            .addCase(logoutUser.rejected, (state, action) => {
+            .addCase(logoutUser.rejected, (state) => {
                 state.loading = false;
-                state.error = action.payload?.message || "Logout failed";
+                state.user = null;
+                state.isAuthenticated = false;
             })
             // Auth check cases
             .addCase(checkAuth.pending, (state) => {
@@ -144,7 +156,7 @@ const authSlice = createSlice({
                 state.user = null;
                 state.isAuthenticated = false;
             });
-    },
+    }
 });
 
 export const { clearError } = authSlice.actions;

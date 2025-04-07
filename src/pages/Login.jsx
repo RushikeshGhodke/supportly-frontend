@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearError } from "../redux/slices/authSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import FormInput from "../components/ui/FormInput";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
+
+// Helper function to parse query parameters
+const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+};
 
 const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const query = useQuery();
+    const redirectPath = query.get("redirect");
+
     const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
 
     const [formData, setFormData] = useState({
@@ -16,12 +27,13 @@ const Login = () => {
     // Redirect if already logged in
     useEffect(() => {
         if (isAuthenticated) {
-            navigate("/dashboard");
+            // Redirect to the specified path or dashboard
+            navigate(redirectPath || "/dashboard");
         }
 
         // Clear any errors when component mounts
         dispatch(clearError());
-    }, [isAuthenticated, navigate, dispatch]);
+    }, [isAuthenticated, navigate, dispatch, redirectPath]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,9 +46,10 @@ const Login = () => {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <h2 className="text-2xl font-bold text-center mb-6 text-[#0061A1]">Log In</h2>
-
+            <Card
+                className="w-full max-w-md"
+                title="Log In"
+            >
                 <div className="mb-4 text-center">
                     <Link to="/" className="text-[#0061A1] hover:underline">
                         ← Back to home
@@ -50,37 +63,27 @@ const Login = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label htmlFor="email" className="block text-gray-700 mb-2">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#0061A1]"
-                            placeholder="Enter your email"
-                        />
-                    </div>
+                    <FormInput
+                        label="Email"
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                        required
+                    />
 
-                    <div>
-                        <label htmlFor="password" className="block text-gray-700 mb-2">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#0061A1]"
-                            placeholder="Enter your password"
-                        />
-                    </div>
+                    <FormInput
+                        label="Password"
+                        id="password"
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter your password"
+                        required
+                    />
 
                     <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -96,18 +99,18 @@ const Login = () => {
 
                         <div className="text-sm">
                             <Link to="/forgot-password" className="text-[#0061A1] hover:underline">
-                                Forgot your password?
+                                Forgot password?
                             </Link>
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[#0061A1] text-white py-2 rounded-md hover:bg-[#004b7c] transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061A1]"
+                        fullWidth
                     >
                         {loading ? "Logging in..." : "Log In"}
-                    </button>
+                    </Button>
                 </form>
 
                 <div className="mt-6 text-center">
@@ -118,7 +121,7 @@ const Login = () => {
                         </Link>
                     </p>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 };

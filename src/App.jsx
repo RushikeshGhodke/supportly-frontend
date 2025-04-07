@@ -14,7 +14,10 @@ import VerifyOTP from "./pages/VerifyOTP";
 import Onboarding from "./pages/Onboarding";
 import ChoosePlan from "./pages/ChoosePlan";
 import ComplaintForm from "./pages/ComplaintForm";
-// Import other components as needed
+import JoinOrganization from "./pages/JoinOrganization";
+import SetupCompany from "./pages/SetupCompany";
+import InviteTeam from "./pages/InviteTeam";
+import WebForm from "./pages/WebForm";
 
 function App() {
     const dispatch = useDispatch();
@@ -29,9 +32,16 @@ function App() {
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
-                <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Signup />} />
+                <Route
+                    path="/login"
+                    element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
+                />
+                <Route
+                    path="/signup"
+                    element={isAuthenticated ? <Navigate to="/dashboard" /> : <Signup />}
+                />
                 <Route path="/complaint/:organizationId" element={<ComplaintForm />} />
+                <Route path="/join" element={<JoinOrganization />} />
 
                 {/* Private Routes wrapped with Layout */}
                 <Route path="/" element={<Layout />}>
@@ -55,8 +65,21 @@ function App() {
                             <ChoosePlan />
                         </PrivateRoute>
                     } />
-
-                    {/* Add other private routes here */}
+                    <Route path="setup-company" element={
+                        <PrivateRoute>
+                            <SetupCompany />
+                        </PrivateRoute>
+                    } />
+                    <Route path="invite-team" element={
+                        <PrivateRoute>
+                            <InviteTeam />
+                        </PrivateRoute>
+                    } />
+                    <Route path="web-form" element={
+                        <PrivateRoute>
+                            <WebForm />
+                        </PrivateRoute>
+                    } />
                 </Route>
 
                 {/* Fallback route */}
